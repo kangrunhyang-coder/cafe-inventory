@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}在庫一覧 - 喫茶店 在庫管理{% endblock %}
+
+{% block body_class %}page-inventory{% endblock %}
+{% block content %}
+<h1>在庫一覧</h1>
+
+<form class="search-bar" method="GET" action="{{ url_for('inventory') }}">
+    {% if selected_category %}
+    <input type="hidden" name="category" value="{{ selected_category }}">
+    {% endif %}
+    <input type="text" name="search" value="{{ search }}" placeholder="商品名で検索..." class="search-input">
+    <button type="submit" class="btn btn-primary">検索</button>
+    {% if search %}
+    <a href="{{ url_for('inventory', category=selected_category) }}" class="btn btn-outline">クリア</a>
+    {% endif %}
+</form>
+
+<div class="filter-bar">
+    <a href="{{ url_for('inventory') }}" class="btn {% if not selected_category %}btn-primary{% else %}btn-outline{% endif %}">すべて</a>
+    {% for cat in categories %}
+    <a href="{{ url_for('inventory', category=cat) }}" class="btn {% if selected_category == cat %}btn-primary{% else %}btn-outline{% endif %}">{{ cat }}</a>
+    {% endfor %}
+</div>
+
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>商品名</th>
+                <th>カテゴリー</th>
+                <th>在庫数</th>
+                <th>最低在庫</th>
+                <th>ステータス</th>
+                <th>仕入れ先</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in products %}
+            <tr>
+                <td>{{ p.name }}</td>
+                <td>{{ p.category }}</td>
+                <td>{{ p.stock_quantity }} {{ p.unit }}</td>
+                <td>{{ p.min_stock }} {{ p.unit }}</td>
+                <td><span class="badge badge-{{ p.status }}">{{ p.status_label }}</span></td>
+                <td>{{ p.supplier }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}発注リスト - 喫茶店 在庫管理{% endblock %}
+
+{% block body_class %}page-order-list{% endblock %}
+{% block content %}
+<h1>発注リスト</h1>
+
+<div class="form-section">
+    <h2>発注を追加</h2>
+    <form method="POST" class="record-form">
+        <input type="hidden" name="action" value="create">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="product_id">商品</label>
+                <select name="product_id" id="product_id" required>
+                    <option value="">選択してください</option>
+                    {% for p in products %}
+                    <option value="{{ p.id }}">{{ p.name }}（{{ p.supplier }}）</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantity">数量</label>
+                <input type="number" name="quantity" id="quantity" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="created_by">記録者</label>
+                <select name="created_by" id="created_by" required>
+                    <option value="">選択してください</option>
+                    <option value="マスター">マスター</option>
+                    <option value="アルバイトA">アルバイトA</option>
+                    <option value="アルバイトB">アルバイトB</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">追加</button>
+    </form>
+</div>
+
+{% if low_stock_products %}
+<div class="alert">
+    <strong>要発注：</strong>
+    {% for p in low_stock_products %}
+    {{ p.name }}（残 {{ p.stock_quantity }}{{ p.unit }}）{% if not loop.last %}、{% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2>未発注</h2>
+{% if pending_orders %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>商品名</th>
+                <th>仕入れ先</th>
+                <th>数量</th>
+                <th>登録者</th>
+                <th>作成日</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in pending_orders %}
+            <tr>
+                <td>{{ o.product.name }}</td>
+                <td>{{ o.product.supplier }}</td>
+                <td>{{ o.quantity }} {{ o.product.unit }}</td>
+                <td>{{ o.created_by }}</td>
+                <td>{{ o.created_at.strftime('%Y/%m/%d') }}</td>
+                <td class="action-buttons">
+                    <form method="POST" style="display:inline">
+                        <input type="hidden" name="action" value="mark_ordered">
+                        <input type="hidden" name="order_id" value="{{ o.id }}">
+                        <select name="ordered_by" required class="select-inline">
+                            <option value="">担当</option>
+                            <option value="マスター">マスター</option>
+                            <option value="アルバイトA">アルバイトA</option>
+                            <option value="アルバイトB">アルバイトB</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary">発注済にする</button>
+                    </form>
+                    <form method="POST" style="display:inline">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="order_id" value="{{ o.id }}">
+                        <button type="submit" class="btn btn-sm btn-danger">削除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="empty-message">未発注の商品はありません。</p>
+{% endif %}
+
+<h2>発注済（入荷待ち）</h2>
+{% if ordered_orders %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>商品名</th>
+                <th>仕入れ先</th>
+                <th>数量</th>
+                <th>発注者</th>
+                <th>発注日</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in ordered_orders %}
+            <tr>
+                <td>{{ o.product.name }}</td>
+                <td>{{ o.product.supplier }}</td>
+                <td>{{ o.quantity }} {{ o.product.unit }}</td>
+                <td>{{ o.ordered_by }}</td>
+                <td>{{ o.ordered_at.strftime('%Y/%m/%d') if o.ordered_at else '-' }}</td>
+                <td>
+                    <form method="POST" style="display:inline">
+                        <input type="hidden" name="action" value="mark_received">
+                        <input type="hidden" name="order_id" value="{{ o.id }}">
+                        <select name="received_by" required class="select-inline">
+                            <option value="">担当</option>
+                            <option value="マスター">マスター</option>
+                            <option value="アルバイトA">アルバイトA</option>
+                            <option value="アルバイトB">アルバイトB</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-success">受取済にする</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="empty-message">発注済の商品はありません。</p>
+{% endif %}
+
+<h2>受取済（直近20件）</h2>
+{% if received_orders %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>商品名</th>
+                <th>数量</th>
+                <th>登録者</th>
+                <th>発注者</th>
+                <th>受取者</th>
+                <th>受取日</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in received_orders %}
+            <tr>
+                <td>{{ o.product.name }}</td>
+                <td>{{ o.quantity }} {{ o.product.unit }}</td>
+                <td>{{ o.created_by }}</td>
+                <td>{{ o.ordered_by }}</td>
+                <td>{{ o.received_by }}</td>
+                <td>{{ o.received_at.strftime('%Y/%m/%d') if o.received_at else '-' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="empty-message">受取済の記録はありません。</p>
+{% endif %}
+{% endblock %}

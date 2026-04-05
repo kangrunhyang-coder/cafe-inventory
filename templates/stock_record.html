@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}入出庫記録 - 喫茶店 在庫管理{% endblock %}
+
+{% block body_class %}page-stock-record{% endblock %}
+{% block content %}
+<h1>入出庫記録</h1>
+
+<div class="form-section">
+    <h2>新規記録</h2>
+    <form method="POST" class="record-form">
+        <div class="form-group">
+            <label for="product_id">商品</label>
+            <select name="product_id" id="product_id" required>
+                <option value="">選択してください</option>
+                {% for p in products %}
+                <option value="{{ p.id }}">{{ p.name }}（現在庫: {{ p.stock_quantity }} {{ p.unit }}）</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="record_type">種別</label>
+                <select name="record_type" id="record_type" required>
+                    <option value="in">入庫</option>
+                    <option value="out">出庫</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantity">数量</label>
+                <input type="number" name="quantity" id="quantity" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="recorded_by">記録者</label>
+                <select name="recorded_by" id="recorded_by" required>
+                    <option value="">選択してください</option>
+                    <option value="マスター">マスター</option>
+                    <option value="アルバイトA">アルバイトA</option>
+                    <option value="アルバイトB">アルバイトB</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="note">メモ</label>
+            <input type="text" name="note" id="note" placeholder="例：月曜定期入荷">
+        </div>
+        <button type="submit" class="btn btn-primary">記録する</button>
+    </form>
+</div>
+
+<h2>履歴（直近50件）</h2>
+{% if records %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>日時</th>
+                <th>商品名</th>
+                <th>種別</th>
+                <th>数量</th>
+                <th>記録者</th>
+                <th>メモ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr>
+                <td>{{ r.created_at.strftime('%Y/%m/%d %H:%M') }}</td>
+                <td>{{ r.product.name }}</td>
+                <td><span class="badge badge-{{ 'in_stock' if r.record_type == 'in' else 'out_of_stock' }}">{{ '入庫' if r.record_type == 'in' else '出庫' }}</span></td>
+                <td>{{ r.quantity }} {{ r.product.unit }}</td>
+                <td>{{ r.recorded_by }}</td>
+                <td>{{ r.note }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="empty-message">まだ記録がありません。</p>
+{% endif %}
+{% endblock %}
