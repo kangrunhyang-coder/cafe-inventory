@@ -384,6 +384,7 @@ tr:not(:last-child) td { border-bottom: 1px solid rgba(0,0,0,.05); }
     flex-direction: column;
     gap: 0.35rem;
     flex: 1;
+    min-width: 0;
 }
 
 .form-group label {
@@ -402,6 +403,8 @@ tr:not(:last-child) td { border-bottom: 1px solid rgba(0,0,0,.05); }
     background: #fff;
     transition: border-color .2s, box-shadow .2s;
     font-family: inherit;
+    width: 100%;
+    min-width: 0;
 }
 
 .form-group select:focus,
