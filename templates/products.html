@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}商品管理 - 喫茶店 在庫管理{% endblock %}
+
+{% block body_class %}page-products{% endblock %}
+{% block content %}
+<h1>商品管理</h1>
+
+<div class="form-section">
+    <h2>新しい商品を登録</h2>
+    <form method="POST" action="{{ url_for('product_add') }}" class="record-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">商品名</label>
+                <input type="text" name="name" id="name" required placeholder="例：エチオピア豆">
+            </div>
+            <div class="form-group">
+                <label for="category">カテゴリー</label>
+                <select name="category" id="category">
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                    <option value="">-- 新規カテゴリー --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="new_category">新規カテゴリー</label>
+                <input type="text" name="new_category" id="new_category" placeholder="空欄なら上の選択を使用">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="unit">単位</label>
+                <input type="text" name="unit" id="unit" required placeholder="例：kg, 個, 箱">
+            </div>
+            <div class="form-group">
+                <label for="stock_quantity">初期在庫数</label>
+                <input type="number" name="stock_quantity" id="stock_quantity" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label for="min_stock">最低在庫数</label>
+                <input type="number" name="min_stock" id="min_stock" min="0" value="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="supplier">仕入れ先</label>
+            <input type="text" name="supplier" id="supplier" required placeholder="例：山田珈琲商事">
+        </div>
+        <button type="submit" class="btn btn-primary">登録する</button>
+    </form>
+</div>
+
+<h2>登録済み商品（{{ products|length }}件）</h2>
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>商品名</th>
+                <th>カテゴリー</th>
+                <th>単位</th>
+                <th>在庫数</th>
+                <th>最低在庫</th>
+                <th>仕入れ先</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in products %}
+            <tr>
+                <td>{{ p.name }}</td>
+                <td><span class="badge-category">{{ p.category }}</span></td>
+                <td>{{ p.unit }}</td>
+                <td>{{ p.stock_quantity }}</td>
+                <td>{{ p.min_stock }}</td>
+                <td>{{ p.supplier }}</td>
+                <td class="action-buttons">
+                    <a href="{{ url_for('product_edit', product_id=p.id) }}" class="btn btn-sm btn-outline">編集</a>
+                    <form method="POST" action="{{ url_for('product_delete', product_id=p.id) }}" style="display:inline" onsubmit="return confirm('「{{ p.name }}」を削除しますか？関連する入出庫記録・発注データも削除されます。')">
+                        <button type="submit" class="btn btn-sm btn-danger">削除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

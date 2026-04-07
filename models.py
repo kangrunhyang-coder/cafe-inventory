@@ -16,8 +16,8 @@ class Product(db.Model):
     supplier = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
-    records = db.relationship("StockRecord", backref="product", lazy=True)
-    orders = db.relationship("Order", backref="product", lazy=True)
+    records = db.relationship("StockRecord", backref="product", lazy=True, cascade="all, delete-orphan")
+    orders = db.relationship("Order", backref="product", lazy=True, cascade="all, delete-orphan")
 
     @property
     def status(self):

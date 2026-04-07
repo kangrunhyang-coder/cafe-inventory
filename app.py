@@ -201,6 +201,67 @@ def order_list():
     )
 
 
+@app.route("/products")
+def products():
+    all_products = Product.query.order_by(Product.category, Product.name).all()
+    categories = db.session.query(Product.category).distinct().all()
+    categories = [c[0] for c in categories]
+    return render_template("products.html", products=all_products, categories=categories)
+
+
+@app.route("/products/add", methods=["POST"])
+def product_add():
+    name = request.form["name"].strip()
+    category = request.form["category"].strip()
+    new_category = request.form.get("new_category", "").strip()
+    if new_category:
+        category = new_category
+    unit = request.form["unit"].strip()
+    stock_quantity = int(request.form.get("stock_quantity", 0))
+    min_stock = int(request.form.get("min_stock", 0))
+    supplier = request.form["supplier"].strip()
+
+    product = Product(
+        name=name, category=category, unit=unit,
+        stock_quantity=stock_quantity, min_stock=min_stock, supplier=supplier,
+    )
+    db.session.add(product)
+    db.session.commit()
+    flash(f"「{name}」を登録しました。", "success")
+    return redirect(url_for("products"))
+
+
+@app.route("/products/<int:product_id>/edit", methods=["GET", "POST"])
+def product_edit(product_id):
+    product = Product.query.get_or_404(product_id)
+    if request.method == "POST":
+        product.name = request.form["name"].strip()
+        category = request.form["category"].strip()
+        new_category = request.form.get("new_category", "").strip()
+        if new_category:
+            category = new_category
+        product.category = category
+        product.unit = request.form["unit"].strip()
+        product.min_stock = int(request.form["min_stock"])
+        product.supplier = request.form["supplier"].strip()
+        db.session.commit()
+        flash(f"「{product.name}」を更新しました。", "success")
+        return redirect(url_for("products"))
+    categories = db.session.query(Product.category).distinct().all()
+    categories = [c[0] for c in categories]
+    return render_template("product_edit.html", product=product, categories=categories)
+
+
+@app.route("/products/<int:product_id>/delete", methods=["POST"])
+def product_delete(product_id):
+    product = Product.query.get_or_404(product_id)
+    name = product.name
+    db.session.delete(product)
+    db.session.commit()
+    flash(f"「{name}」を削除しました。", "success")
+    return redirect(url_for("products"))
+
+
 if __name__ == "__main__":
     with app.app_context():
         init_db()
