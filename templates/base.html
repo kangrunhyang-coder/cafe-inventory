@@ -44,19 +44,44 @@
     </nav>
 
     <main class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="flash flash-{{ category }}">{{ message }}</div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-
         {% block content %}{% endblock %}
     </main>
 
     <footer class="footer">
         <span class="footer-brand">Cafe Stock</span> &mdash; handcrafted inventory
     </footer>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="toast toast-{{ category }}">
+            <div class="toast-icon">
+                {% if category == 'success' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                {% endif %}
+            </div>
+            <span class="toast-message">{{ message }}</span>
+            <button class="toast-close" onclick="this.parentElement.classList.add('toast-hide')">&times;</button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var toasts = document.querySelectorAll('.toast');
+        toasts.forEach(function(toast, i) {
+            toast.style.animationDelay = (i * 0.1) + 's';
+            setTimeout(function() {
+                toast.classList.add('toast-hide');
+            }, 4000 + i * 500);
+        });
+    });
+    </script>
 </body>
 </html>
