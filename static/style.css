@@ -416,6 +416,10 @@ tr:not(:last-child) td { border-bottom: 1px solid rgba(0,0,0,.05); }
     gap: 0.85rem;
 }
 
+.form-group input[type="number"] {
+    min-width: 0;
+}
+
 .form-actions {
     display: flex;
     gap: 0.75rem;
