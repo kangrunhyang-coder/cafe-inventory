@@ -238,6 +238,25 @@ h2::before { display: none; }
 .page-order-list h2  { color: #b44; }
 .page-products h2    { color: #6d35b5; }
 
+/* ========== Section Header ========== */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.section-header h2 { margin-bottom: 0; }
+
+.btn-pulse {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 3px 14px rgba(74,144,217,.3), 0 1px 3px rgba(74,144,217,.15); }
+    50% { box-shadow: 0 3px 20px rgba(74,144,217,.5), 0 1px 6px rgba(74,144,217,.25); }
+}
+
 /* ========== Announcement Ticker ========== */
 .ticker-row {
     display: flex;
